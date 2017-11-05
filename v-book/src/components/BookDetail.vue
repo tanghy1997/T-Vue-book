@@ -89,8 +89,12 @@ export default {
                   message: res.data.msg,
                   type:'success'
                 });
+              }else{
+                this.$message({
+                  message: res.data.msg,
+                  type:'error'
+                });
               }
-        console.log(res)
       })
   },
   loadImage(e) {

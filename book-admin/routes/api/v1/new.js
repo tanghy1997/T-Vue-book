@@ -26,7 +26,7 @@ router.post('/login',(req,res) => {
     if(strPass == data.pass){
       res.json({
         status:'y',
-        msg:'获取数据成功',
+        msg:'登陆成功',
         data
       })
     }else{
@@ -53,6 +53,12 @@ router.post('/login',(req,res) => {
 
 router.post('/update/:name',(req,res)=>{
   // console.log(req.body)
+ if(req.params.name == 'undefined'){
+  res.json({
+    status:'n',
+    msg:'你还未登录，请登录'
+  })
+ }else{
   New.findOne({name:req.params.name}).then(userDoc=>{
     if(userDoc){
       var booksItem =''
@@ -62,12 +68,10 @@ router.post('/update/:name',(req,res)=>{
         }
       });
       if(booksItem){
-        userDoc.save().then(
           res.json({
-            status:'y',
+            status:'n',
             msg:'已在书架中'
           })
-        )
       }else{
         userDoc.book_store.push(req.body)
         userDoc.save().then(
@@ -79,6 +83,7 @@ router.post('/update/:name',(req,res)=>{
       }
     }
   })
+ }
 })
 
 router.get('/book/:name',(req,res)=>{
@@ -90,5 +95,17 @@ router.get('/book/:name',(req,res)=>{
         data:data
       })
     })
+})
+
+router.post('/delbook',(req,res)=>{
+  // console.log(req.body)
+// $pull 推出 =>删除book_store下的为req.body.book_id的书
+  New.findOneAndUpdate({name:req.body.name},{$pull:{book_store:{book_id:req.body.book_id}}}).then(data=>{
+    res.json({
+      status:'y',
+      msg:'删除成功',
+      data:data
+    })
+  })
 })
 module.exports = router;
