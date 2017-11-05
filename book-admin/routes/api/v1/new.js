@@ -52,22 +52,33 @@ router.post('/login',(req,res) => {
 })
 
 router.post('/update/:name',(req,res)=>{
-  console.log(req.body)
-  New.findOneAndUpdate({name:req.params.name},{$push:{book_store:req.body}})
-    .then(data =>{
-      res.json({
-        status:'y',
-        msg:'增加成功',
-        data:data
-      })
-    })
-    .catch(err => {
-      console.log(err)
-      res.json({
-        status:'n',
-        msg:'增加失败',
-      })
-    })
+  // console.log(req.body)
+  New.findOne({name:req.params.name}).then(userDoc=>{
+    if(userDoc){
+      var booksItem =''
+      userDoc.book_store.forEach(function(item) {
+        if(item.book_id==req.body.book_id){
+          booksItem = item
+        }
+      });
+      if(booksItem){
+        userDoc.save().then(
+          res.json({
+            status:'y',
+            msg:'已在书架中'
+          })
+        )
+      }else{
+        userDoc.book_store.push(req.body)
+        userDoc.save().then(
+          res.json({
+            status:'y',
+            msg:'加入书架成功'
+          })
+        )
+      }
+    }
+  })
 })
 
 router.get('/book/:name',(req,res)=>{
